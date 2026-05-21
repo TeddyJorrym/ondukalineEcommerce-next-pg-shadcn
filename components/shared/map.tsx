@@ -5,7 +5,7 @@ import {
 } from "@react-google-maps/api"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
-const defaultLocation = { lat: 45.516, lng: -73.56 }
+const KENYA_CENTER = { lat: -1.2921, lng: 36.8219 } // Nairobi, Kenya
 
 type LatLng = {
   lat: number
@@ -28,24 +28,33 @@ function MyComponent({ setShippingLocation }: Props) {
   const markerRef = useRef<google.maps.Marker | null>(null)
   const mapRef = useRef<MapInstance | null>(null)
 
-  const [center, setCenter] = useState<LatLng>(defaultLocation)
-  const [location, setLocation] = useState<LatLng>(defaultLocation)
+  const [center, setCenter] = useState<LatLng>(KENYA_CENTER)
+  const [location, setLocation] = useState<LatLng>(KENYA_CENTER)
 
+  // ✅ OPTIONAL: only refine location, never override initial UX
   useEffect(() => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser")
-      return
-    }
+    if (!navigator.geolocation) return
 
-    navigator.geolocation.getCurrentPosition((position) => {
-      const coords = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }
+
+        setCenter(coords)
+        setLocation(coords)
+      },
+      () => {
+        // ❌ If user denies, we STAY in Kenya (no crash, no fallback chaos)
+        setCenter(KENYA_CENTER)
+        setLocation(KENYA_CENTER)
+      },
+      {
+        timeout: 5000,
+        maximumAge: 10000,
       }
-
-      setCenter(coords)
-      setLocation(coords)
-    })
+    )
   }, [])
 
   const onLoad = useCallback((map: MapInstance) => {
@@ -84,7 +93,7 @@ function MyComponent({ setShippingLocation }: Props) {
         height: "400px",
       }}
       center={center}
-      zoom={15}
+      zoom={6} // 🔥 better for country view (Kenya)
       onLoad={onLoad}
       onUnmount={onUnmount}
       onIdle={onIdle}

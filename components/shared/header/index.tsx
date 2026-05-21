@@ -1,48 +1,180 @@
-import Image from "next/image";
-import Link from "next/link";
+import Link from 'next/link'
+import Image from 'next/image'
 
-import { APP_NAME } from "@/lib/constants";
-import { getAllCategories } from "@/lib/actions/product.actions";
+import Menu from './menu'
+import MobileMenu from './mobile-menu'
+import Search from './search'
+import CartButton from './cart-button'
+import UserButtonsServer from './user-buttons-server'
 
-import Menu from "./menu";
-import Search from "./search";
-import MobileMenu from "./mobile-menu";
+import { getAllCategories } from '@/lib/actions/product.actions'
 
-const Header = async () => {
-  const categories = await getAllCategories();
+export default async function Header() {
+  const data = await getAllCategories()
+
+  const categories = data.map((category) => ({
+    name: category.name,
+  }))
 
   return (
-    <header className="w-full border-b bg-background">
-      <div className="wrapper flex-between">
-        <div className="flex items-center gap-4">
-          <MobileMenu categories={categories} />
+    <header className="w-full border-b bg-background text-foreground">
+      {/* TOP NAVBAR */}
+      <div className="wrapper flex h-16 items-center justify-between gap-4">
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-3">
+          {/* MOBILE MENU ICON ONLY */}
+          <div className="md:hidden">
+            <MobileMenu categories={categories} />
+          </div>
 
-          <Link href="/" className="flex items-center gap-2 font-semibold">
+          {/* LOGO */}
+          <Link
+            href="/"
+            className="flex items-center"
+          >
             <Image
               src="/assets/icons/logo.svg"
+              alt="OndukaLine"
               width={148}
-              height={148}
-              alt={`${APP_NAME} logo`}
+              height={40}
               priority
+              style={{
+                width: '148px',
+                height: 'auto',
+              }}
             />
           </Link>
         </div>
 
-        <div className="mx-6 hidden max-w-xl flex-1 md:block">
+        {/* DESKTOP SEARCH ONLY */}
+        <div className="hidden flex-1 justify-center md:flex">
           <Search />
         </div>
 
-        <Menu />
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
+            <CartButton />
+            <UserButtonsServer />
+          </div>
+
+          {/* MOBILE MENU ACTIONS */}
+          <div className="md:hidden">
+            <Menu />
+          </div>
+        </div>
       </div>
 
-      <div className="block px-5 pb-2 md:hidden">
-        <Search />
+      {/* MOBILE SEARCH ONLY */}
+      <div className="md:hidden border-t">
+        <div className="wrapper py-3">
+          <Search />
+        </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+
+
+
+
+
+
+
+
+
+
+
+
+// import Link from 'next/link'
+
+// import Menu from './menu'
+// import CategoryDrawer from './category-drawer'
+// import MobileMenu from './mobile-menu'
+
+// import { getAllCategories } from '@/lib/actions/product.actions'
+
+// export default async function Header() {
+//   const data = await getAllCategories()
+
+//   const categories = data.map((category) => ({
+//     name: category.name,
+//   }))
+
+//   return (
+//     <header className="w-full border-b">
+//       <div className="wrapper flex-between">
+//         <div className="flex-start">
+//           <CategoryDrawer categories={categories} />
+
+//           <Link
+//             href="/"
+//             className="flex-start ml-4"
+//           >
+//             <span className="hidden lg:block font-bold text-2xl">
+//               OndukaLine
+//             </span>
+//           </Link>
+//         </div>
+
+//         <div className="hidden md:block">
+//           <Menu />
+//         </div>
+
+//         <div className="md:hidden">
+//           <MobileMenu categories={categories} />
+//         </div>
+//       </div>
+//     </header>
+//   )
+// }
+
+
+
+
+
+
+
+
+
+
+// import Link from 'next/link'
+
+// import { getAllCategories } from '@/lib/actions/product.actions'
+
+// import Menu from './menu'
+// import MobileMenu from './mobile-menu'
+
+// export default async function Header() {
+//   const categories = await getAllCategories()
+
+//   const formattedCategories = categories.map(
+//     (item) => ({
+//       name: item.category,
+//     })
+//   )
+
+//   return (
+//     <header className='w-full border-b'>
+//       <div className='wrapper flex-between'>
+//         <div className='flex-start'>
+//           <Link href='/' className='flex-start'>
+//             <span className='hidden font-bold lg:block'>
+//               OndukaLine
+//             </span>
+//           </Link>
+//         </div>
+
+//         <MobileMenu
+//           categories={formattedCategories}
+//         />
+
+//         <Menu />
+//       </div>
+//     </header>
+//   )
+// }
 
 
 

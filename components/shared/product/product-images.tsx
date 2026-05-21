@@ -20,26 +20,31 @@ export default function ProductImages({
         width={1000}
         height={1000}
         priority
-        className="min-h-75 w-full object-cover object-center"
+        className="h-auto w-full rounded-lg object-cover object-center"
+        style={{ width: '100%', height: 'auto' }}
       />
 
-      <div className="flex">
+      <div className="flex gap-2">
         {images.map((image, index) => (
-          <div
+          <button
+            type="button"
             key={image}
+            aria-label={`View product image ${index + 1}`}
+            onClick={() => setCurrent(index)}
             className={cn(
-              'mr-2 cursor-pointer border hover:border-orange-600',
+              'cursor-pointer overflow-hidden rounded border transition hover:border-orange-600',
               current === index && 'border-orange-500'
             )}
-            onClick={() => setCurrent(index)}
           >
             <Image
               src={image}
-              alt="image"
+              alt={`Product thumbnail ${index + 1}`}
               width={100}
               height={100}
+              className="h-auto object-cover"
+              style={{ width: '100px', height: 'auto' }}
             />
-          </div>
+          </button>
         ))}
       </div>
     </div>

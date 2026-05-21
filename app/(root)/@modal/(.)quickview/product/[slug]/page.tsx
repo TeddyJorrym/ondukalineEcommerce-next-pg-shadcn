@@ -1,21 +1,22 @@
 import AddToCart from '@/components/shared/product/add-to-cart'
 import ProductImages from '@/components/shared/product/product-images'
 import ProductPrice from '@/components/shared/product/product-price'
+import QuickViewModalWrapper from '@/components/shared/product/quickview-modal-wrapper'
 import Rating from '@/components/shared/product/rating'
+
+import { Button } from '@/components/ui/button'
 
 import { getMyCart } from '@/lib/actions/cart.actions'
 import { getProductBySlug } from '@/lib/actions/product.actions'
 
 import { notFound } from 'next/navigation'
 
-import ReloadButton from './reload-button'
-
 export default async function StorefrontProductQuickView(props: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const product = await getProductBySlug(
-    props.params.slug
-  )
+  const { slug } = await props.params
+
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     notFound()
@@ -24,57 +25,151 @@ export default async function StorefrontProductQuickView(props: {
   const cart = await getMyCart()
 
   return (
-    <div className="flex flex-col gap-8 p-4">
-      <div className="flex flex-col items-center justify-start gap-8 md:grid md:grid-cols-9 md:items-start">
-        <div className="col-span-4 w-full">
-          <ProductImages images={product.images ?? []} />
-        </div>
-
-        <div className="md:col-span-5 w-full flex flex-col gap-4">
-          <h3 className="h3-bold">
-            {product.name}
-          </h3>
-
-          <p>{product.description}</p>
-
-          <div className="flex items-center gap-4">
-            <Rating value={Number(product.rating)} />
-
-            {product.stock > 0 ? (
-              <ProductPrice
-                value={Number(product.price)}
-              />
-            ) : (
-              <p className="text-destructive">
-                Out of Stock
-              </p>
-            )}
+    <QuickViewModalWrapper>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col items-center justify-start gap-8 md:grid md:grid-cols-9 md:items-start">
+          <div className="col-span-4 w-full">
+            <ProductImages images={product.images ?? []} />
           </div>
 
-          {product.stock > 0 && (
-            <div className="flex-center">
-              <AddToCart
-                cart={cart}
-                item={{
-                  productId: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  price: Number(product.price),
-                  qty: 1,
-                  image: product.images?.[0] ?? '',
-                }}
-              />
-            </div>
-          )}
+          <div className="md:col-span-5 w-full flex flex-col gap-4">
+            <h3 className="h3-bold">
+              {product.name}
+            </h3>
 
-          <div className="my-2 flex flex-col items-start gap-2 justify-center">
-            <ReloadButton />
+            <p>{product.description}</p>
+
+            <div className="flex items-center gap-4">
+              <Rating value={Number(product.rating)} />
+
+              {product.stock > 0 ? (
+                <ProductPrice
+                  value={Number(product.price)}
+                />
+              ) : (
+                <p className="text-destructive">
+                  Out of Stock
+                </p>
+              )}
+            </div>
+
+            {product.stock > 0 && (
+              <div className="flex-center">
+                <AddToCart
+                  cart={cart}
+                  item={{
+                    productId: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: Number(product.price),
+                    qty: 1,
+                    image: product.images?.[0] ?? '',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* HARD NAVIGATION FIX */}
+            <div className="mt-4">
+              <Button
+                asChild
+                className="w-full"
+              >
+                <a href={`/product/${product.slug}`}>
+                  View Product
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </QuickViewModalWrapper>
   )
 }
+
+
+
+
+
+
+
+// import AddToCart from '@/components/shared/product/add-to-cart'
+// import ProductImages from '@/components/shared/product/product-images'
+// import ProductPrice from '@/components/shared/product/product-price'
+// import Rating from '@/components/shared/product/rating'
+
+// import { getMyCart } from '@/lib/actions/cart.actions'
+// import { getProductBySlug } from '@/lib/actions/product.actions'
+
+// import { notFound } from 'next/navigation'
+
+// import ReloadButton from './reload-button'
+
+// export default async function StorefrontProductQuickView(props: {
+//   params: { slug: string }
+// }) {
+//   const product = await getProductBySlug(
+//     props.params.slug
+//   )
+
+//   if (!product) {
+//     notFound()
+//   }
+
+//   const cart = await getMyCart()
+
+//   return (
+//     <div className="flex flex-col gap-8 p-4">
+//       <div className="flex flex-col items-center justify-start gap-8 md:grid md:grid-cols-9 md:items-start">
+//         <div className="col-span-4 w-full">
+//           <ProductImages images={product.images ?? []} />
+//         </div>
+
+//         <div className="md:col-span-5 w-full flex flex-col gap-4">
+//           <h3 className="h3-bold">
+//             {product.name}
+//           </h3>
+
+//           <p>{product.description}</p>
+
+//           <div className="flex items-center gap-4">
+//             <Rating value={Number(product.rating)} />
+
+//             {product.stock > 0 ? (
+//               <ProductPrice
+//                 value={Number(product.price)}
+//               />
+//             ) : (
+//               <p className="text-destructive">
+//                 Out of Stock
+//               </p>
+//             )}
+//           </div>
+
+//           {product.stock > 0 && (
+//             <div className="flex-center">
+//               <AddToCart
+//                 cart={cart}
+//                 item={{
+//                   productId: product.id,
+//                   name: product.name,
+//                   slug: product.slug,
+//                   price: Number(product.price),
+//                   qty: 1,
+//                   image: product.images?.[0] ?? '',
+//                 }}
+//               />
+//             </div>
+//           )}
+
+//           <div className="my-2 flex flex-col items-start gap-2 justify-center">
+//             <ReloadButton />
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
 
 
 

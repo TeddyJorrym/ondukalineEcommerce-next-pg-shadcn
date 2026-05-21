@@ -155,6 +155,8 @@ export const config = {
     },
 
     authorized({ request, auth }) {
+      const { pathname } = request.nextUrl
+
       const protectedPaths = [
         /\/shipping-address/,
         /\/payment-method/,
@@ -162,24 +164,37 @@ export const config = {
         /\/profile/,
         /\/user\/(.*)/,
         /\/order\/(.*)/,
-        /\/admin/,
       ]
 
-      const { pathname } = request.nextUrl
+      const isAdminRoute =
+        pathname.startsWith('/admin')
 
       if (
         !auth &&
-        protectedPaths.some((path) => path.test(pathname))
+        (protectedPaths.some((path) =>
+          path.test(pathname)
+        ) ||
+          isAdminRoute)
       ) {
         return false
       }
 
-      if (!request.cookies.get('sessionCartId')) {
-        const sessionCartId = crypto.randomUUID()
-
-        const newRequestHeaders = new Headers(
-          request.headers
+      // ADMIN PROTECTION
+      if (
+        isAdminRoute &&
+        auth?.user?.role !== 'admin'
+      ) {
+        return Response.redirect(
+          new URL('/', request.nextUrl)
         )
+      }
+
+      if (!request.cookies.get('sessionCartId')) {
+        const sessionCartId =
+          crypto.randomUUID()
+
+        const newRequestHeaders =
+          new Headers(request.headers)
 
         const response = NextResponse.next({
           request: {
